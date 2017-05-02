@@ -88,8 +88,8 @@ cat > "${location_plist}" << EOF
 </dict>
 </plist>
 EOF
-cp ${location_plist}{,."$system_uuid".plist}
-cp ${location_plist}{,.notbackedup."$system_uuid".plist}
+cp "${location_plist}" "${location_plist}.$system_uuid.plist"
+cp "${location_plist}" "$location_plist.notbackedup.$system_uuid.plist"
 chown -R _locationd:_locationd /var/db/locationd
 killall -9 locationd
 
