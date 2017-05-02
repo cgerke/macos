@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # https://github.com/cgerke
 
-date_time=$(date +"%Y%m%d%H%M%S")
-
 # Cleanup
 clean_exit(){
   rm -f \
@@ -83,7 +81,7 @@ echo "ssh configuring Remote Login..." >&3
 systemsetup -setremotelogin on
 
 echo "postfix configuring Postfix..." >&3
-cp "/etc/postfix/main.cf"{,."$date_time"}
+cp "/etc/postfix/main.cf"{,.orig}
 sed '/MANAGED_MAC_START/,/MANAGED_MAC_END/d' /etc/postfix/main.cf > /tmp/main.cf
 tee -a /tmp/main.cf <<<"# MANAGED_MAC_START
 relayhost=[smtp.gmail.com]:587

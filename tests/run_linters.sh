@@ -7,5 +7,5 @@ shellcheck scripts/preinstall
 #bashate root/etc/rc.installer_cleanup
 #bashate root/private/var/root/bootstrap.sh
 #bashate root/private/var/root/macos.sh
-#bashate -x scripts/postinstall
-#bashate -x scripts/preinstall
+#bashate scripts/postinstall
+#bashate scripts/preinstall

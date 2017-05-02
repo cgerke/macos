@@ -70,7 +70,8 @@ cat > '/Library/Preferences/com.apple.timezone.auto.plist' << EOF
 EOF
 
 # Location
-location_plist=/var/db/locationd/Library/Preferences/ByHost/com.apple.locationd
+#location_plist=/var/db/locationd/Library/Preferences/ByHost/com.apple.locationd
+location_plist=/tmp/com.apple.locationd
 cp "${location_plist}.${system_uuid}".plist{,.orig}
 cat > "${location_plist}" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -87,8 +88,8 @@ cat > "${location_plist}" << EOF
 </dict>
 </plist>
 EOF
-cp "${location_plist}"{,."$system_uuid".plist}
-cp "${location_plist}"{,.notbackedup."$system_uuid".plist}
+cp ${location_plist}{,."$system_uuid".plist}
+cp ${location_plist}{,.notbackedup."$system_uuid".plist}
 chown -R _locationd:_locationd /var/db/locationd
 killall -9 locationd
 
