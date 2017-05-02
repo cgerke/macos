@@ -20,6 +20,8 @@
 !/root/private/var/db/ConfigurationProfiles
 /root/private/var/db/ConfigurationProfiles/*
 !/root/private/var/db/ConfigurationProfiles/Setup
+/root/private/var/db/ConfigurationProfiles/Setup/*
+!/root/private/var/db/ConfigurationProfiles/Setup/*.mobileconfig
 !/root/private/var/root
 /root/private/var/root/*
 !/root/private/var/root/bootstrap.sh
