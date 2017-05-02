@@ -9,4 +9,4 @@ before_install:
     - sudo pip install bashate
 
 script:
-- .tests/run_linters.sh
+- ./tests/run_linters.sh
