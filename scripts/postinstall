@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # https://github.com/cgerke
+# shellcheck disable=SC1090
+# shellcheck disable=SC2154
 
 root_path="$3"
 if [ -z "${root_path}" ] || [ "${root_path}" = "/" ]; then
@@ -23,9 +25,8 @@ dscl -f "$dscl_default" localonly -passwd $dscl_user password
 dscl -f "$dscl_default" localonly -append $dscl_group GroupMembership "$local_user"
 
 # Hash password
-# shellcheck source=root/private/var/root/passwd
 . "${root_path}/var/root/passwd"
-defaults write "${dscl_default}/Users/${local_user}.plist" ShadowHashData "$_hash"
+defaults write "${dscl_default}/Users/${local_user}.plist" ShadowHashData "$dscl_hash"
 dscacheutil -flushcache
 rm -f "${root_path}/var/root/passwd"
 

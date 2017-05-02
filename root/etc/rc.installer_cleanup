@@ -20,8 +20,8 @@ scutil --set LocalHostName "${device_name}"
 scutil --set HostName "${device_name}"
 hostname "${device_name}"
 # Netbios
-cp "/Library/Preferences/SystemConfiguration\
-/com.apple.smb.server.plist"{,."$time_string"}
+cp /Library/Preferences/SystemConfiguration\
+/com.apple.smb.server.plist{,."$time_string"}
 cat > "/Library/Preferences/SystemConfiguration\
 /com.apple.smb.server.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -39,7 +39,7 @@ plutil -convert binary1 \
 
 # GateKeeper
 spctl --master-disable
-cp "/Library/Preferences/com.apple.security.plist"{,."$time_string"}
+cp /Library/Preferences/com.apple.security.plist{,."$time_string"}
 cat > '/Library/Preferences/com.apple.security.plist' << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -53,12 +53,12 @@ cat > '/Library/Preferences/com.apple.security.plist' << EOF
 EOF
 
 # Timezone fallback
-cp "/etc/localtime"{,."$time_string"}
+cp /etc/localtime{,."$time_string"}
 rm -f '/etc/localtime'
 ln -sf /usr/share/zoneinfo/Australia/Perth '/etc/localtime'
 
 # Auto Timezone
-cp "/Library/Preferences/com.apple.timezone.auto.plist"{,."$time_string"}
+cp /Library/Preferences/com.apple.timezone.auto.plist{,."$time_string"}
 cat > '/Library/Preferences/com.apple.timezone.auto.plist' << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -73,7 +73,7 @@ EOF
 
 # Location
 location_plist=/var/db/locationd/Library/Preferences/ByHost/com.apple.locationd
-cp "${location_plist}"."${system_uuid}".plist{,."$time_string"}
+cp "${location_plist}.${system_uuid}".plist{,."$time_string"}
 cat > "${location_plist}" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -174,7 +174,7 @@ cat > "/private/var/db/ConfigurationProfiles/Setup\
 EOF
 
 # Welcome
-cp "/Library/Preferences/com.apple.touristd.plist"{,."$time_string"}
+cp /Library/Preferences/com.apple.touristd.plist{,."$time_string"}
 cat > '/Library/Preferences/com.apple.touristd.plist' << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -188,7 +188,7 @@ cat > '/Library/Preferences/com.apple.touristd.plist' << EOF
 EOF
 
 # Locale
-cp "/Library/Preferences/.GlobalPreferences.plist"{,."$time_string"}
+cp /Library/Preferences/.GlobalPreferences.plist{,."$time_string"}
 cat > '/Library/Preferences/.GlobalPreferences.plist' << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -208,7 +208,7 @@ cat > '/Library/Preferences/.GlobalPreferences.plist' << EOF
 EOF
 
 # Default Keyboard Input (LoginWindow)
-cp "/var/tmp/com.apple.HIToolbox.loginwindow.plist"{,."$time_string"}
+cp /var/tmp/com.apple.HIToolbox.loginwindow.plist{,."$time_string"}
 cat > '/var/tmp/com.apple.HIToolbox.loginwindow.plist' << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -255,7 +255,7 @@ chown securityagent:wheel '/var/tmp/com.apple.HIToolbox.loginwindow.plist'
 chmod 644 '/var/tmp/com.apple.HIToolbox.loginwindow.plist'
 
 # Default Keyboard Input (System)
-cp "/Library/Preferences/com.apple.HIToolbox.plist"{,."$time_string"}
+cp /Library/Preferences/com.apple.HIToolbox.plist{,."$time_string"}
 cat > '/Library/Preferences/com.apple.HIToolbox.plist' << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
