@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# https://github.com/cgerke
+
+root_path="$3"
+if [ -z "${root_path}" ] || [ "${root_path}" = "/" ]; then
+  root_path=""
+fi # fix //
+
+local_user="macos"
+dscl_default="${root_path}/var/db/dslocal/nodes/Default"
+dscl_user="/Local/Target/Users/${local_user}"
+dscl_group="/Local/Target/Groups/admin"
+
+# Local admin
+dscl -f "$dscl_default" localonly -create $dscl_user
+dscl -f "$dscl_default" localonly -create $dscl_user UserShell /bin/bash
+dscl -f "$dscl_default" localonly -create $dscl_user RealName $local_user
+dscl -f "$dscl_default" localonly -create $dscl_user PrimaryGroupID 20
+dscl -f "$dscl_default" localonly -create $dscl_user UniqueID 501
+dscl -f "$dscl_default" localonly -create $dscl_user NFSHomeDirectory "/Users/${local_user}"
+dscl -f "$dscl_default" localonly -create $dscl_user IsHidden 0
+dscl -f "$dscl_default" localonly -passwd $dscl_user password
+dscl -f "$dscl_default" localonly -append $dscl_group GroupMembership "$local_user"
+
+# Hash password
+# shellcheck source=root/private/var/root/passwd
+. "${root_path}/var/root/passwd"
+defaults write "${dscl_default}/Users/${local_user}.plist" ShadowHashData "$_hash"
+dscacheutil -flushcache
+rm -f "${root_path}/var/root/passwd"
+
+# Auto login
+defaults write "${root_path}/Library/Preferences/com.apple.loginwindow.plist" \
+  autoLoginUser -string $local_user
+
+# Explicit permissions
+chown root:wheel "${root_path}/etc/kcpassword"
+chmod 600 "${root_path}/etc/kcpassword"
+chown -R root:wheel "${root_path}/var/root/.ssh"
+chmod -R 600 "${root_path}/var/root/.ssh"
+chmod 644 "${root_path}/Library/LaunchAgents/com.cgerke.macos-ondemand.plist"
+chown root:wheel "${root_path}/Library/LaunchAgents/com.cgerke.macos-ondemand.plist"
+chmod 644 "${root_path}/Library/LaunchDaemons/com.cgerke.macos.plist"
+chown root:wheel "${root_path}/Library/LaunchDaemons/com.cgerke.macos.plist"
+chmod 755 "${root_path}/private/var/root/bootstrap.sh"
+chmod 755 "${root_path}/private/var/root/macos.sh"
+
+exit 0

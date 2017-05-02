@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# https://github.com/cgerke
+
+root_path="$3"
+if [ -z "${root_path}" ] || [ "${root_path}" = "/" ]; then
+  root_path=""
+fi # fix //
+
+exit 0

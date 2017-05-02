@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.cgerke.macos</string>
+  <key>ProgramArguments</key>
+	<array>
+		<string>/bin/sh</string>
+		<string>-c</string>
+		<string>/private/var/root/macos.sh</string>
+	</array>
+  <key>WatchPaths</key>
+  <array>
+    <string>/Users/Shared/.com.cgerke.macos</string>
+  </array>
+  <key>OnDemand</key>
+  <true/>
+</dict>
+</plist>

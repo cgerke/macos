@@ -1,0 +1,309 @@
+#!/usr/bin/env bash
+# https://github.com/cgerke
+
+# Some tasks I want to peform early and dynamically
+
+product_version=$(sw_vers -productVersion)
+build_version=$(sw_vers -buildVersion)
+system_uuid=$(system_profiler SPHardwareDataType |
+  grep "UUID" | awk '{print $3}')
+short_uuid=$(system_profiler SPHardwareDataType |
+  grep "Hardware UUID" |
+  cut -c22-57 |
+  cut -d '-' -f1)
+time_string=$(date +"%Y%m%d%H%M%S")
+
+# Hostname
+device_name="${short_uuid}"
+scutil --set ComputerName "${device_name}"
+scutil --set LocalHostName "${device_name}"
+scutil --set HostName "${device_name}"
+hostname "${device_name}"
+# Netbios
+cp "/Library/Preferences/SystemConfiguration\
+/com.apple.smb.server.plist"{,."$time_string"}
+cat > "/Library/Preferences/SystemConfiguration\
+/com.apple.smb.server.plist" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NetBIOSName</key>
+  <string>${device_name}</string>
+</dict>
+</plist>
+EOF
+plutil -convert binary1 \
+'/Library/Preferences/SystemConfiguration/com.apple.smb.server.plist'
+
+# GateKeeper
+spctl --master-disable
+cp "/Library/Preferences/com.apple.security.plist"{,."$time_string"}
+cat > '/Library/Preferences/com.apple.security.plist' << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>GKAutoRearm</key>
+  <false/>
+</dict>
+</plist>
+EOF
+
+# Timezone fallback
+cp "/etc/localtime"{,."$time_string"}
+rm -f '/etc/localtime'
+ln -sf /usr/share/zoneinfo/Australia/Perth '/etc/localtime'
+
+# Auto Timezone
+cp "/Library/Preferences/com.apple.timezone.auto.plist"{,."$time_string"}
+cat > '/Library/Preferences/com.apple.timezone.auto.plist' << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Active</key>
+	<true/>
+</dict>
+</plist>
+EOF
+
+# Location
+location_plist=/var/db/locationd/Library/Preferences/ByHost/com.apple.locationd
+cp "${location_plist}"."${system_uuid}".plist{,."$time_string"}
+cat > "${location_plist}" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>LastSystemVersion</key>
+	<string>Mac OS X${product_version}/${build_version}</string>
+	<key>LocationServicesEnabled</key>
+	<integer>1</integer>
+	<key>ObsoleteDataDeleted</key>
+	<true/>
+</dict>
+</plist>
+EOF
+cp "${location_plist}"{,."$system_uuid".plist}
+cp "${location_plist}"{,.notbackedup."$system_uuid".plist}
+chown -R _locationd:_locationd /var/db/locationd
+killall -9 locationd
+
+# SetupAssistant
+cat > "/private/var/db/ConfigurationProfiles/Setup\
+/SetupAssistant.mobileconfig" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadIdentifier</key>
+  <string>com.cgerke.setupassistant</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadScope</key>
+  <string>System</string>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>G9E5RDKE-D8ED-423B-9A37-73DF80DEB983</string>
+  <key>PayloadOrganization</key>
+  <string>com.cgerke</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadDisplayName</key>
+  <string>Setup Assistant</string>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.ManagedClient.preferences</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadIdentifier</key>
+      <string>com.github.cgerke.SetupAssistant</string>
+      <key>PayloadUUID</key>
+      <string>G8E3RDKE-0EFB-485A-B9EB-35069450556E</string>
+      <key>PayloadEnabled</key>
+      <true/>
+      <key>PayloadDisplayName</key>
+      <string>SetupAssistant</string>
+      <key>PayloadContent</key>
+      <dict>
+        <key>com.apple.SetupAssistant</key>
+        <dict>
+          <key>Set-Once</key>
+          <array>
+            <dict>
+              <key>mcx_preference_settings</key>
+              <dict>
+                <key>DidSeeiCloudLoginForStorageServices</key>
+                <true/>
+                <key>DidSeeCloudSetup</key>
+                <true/>
+                <key>DidSeeSiriSetup</key>
+                <true/>
+                <key>DidSeeSyncSetup</key>
+                <true/>
+                <key>DidSeeSyncSetup2</key>
+                <true/>
+                <key>DidSeeiCloudSecuritySetup</key>
+                <true/>
+                <key>GestureMovieSeen</key>
+                <string>none</string>
+                <key>LastSeenBuddyBuildVersion</key>
+                <string>${build_version}</string>
+                <key>LastSeenCloudProductVersion</key>
+                <string>${product_version}</string>
+                <key>RunNonInteractive</key>
+                <true/>
+              </dict>
+            </dict>
+          </array>
+        </dict>
+      </dict>
+    </dict>
+  </array>
+</dict>
+</plist>
+EOF
+
+# Welcome
+cp "/Library/Preferences/com.apple.touristd.plist"{,."$time_string"}
+cat > '/Library/Preferences/com.apple.touristd.plist' << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>seed-https://help.apple.com/osx/mac/10.12/new-to-mac</key>
+	<date>2050-12-01T06:19:00Z</date>
+</dict>
+</plist>
+EOF
+
+# Locale
+cp "/Library/Preferences/.GlobalPreferences.plist"{,."$time_string"}
+cat > '/Library/Preferences/.GlobalPreferences.plist' << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>AppleLocale</key>
+  <string>en_AU</string>
+  <key>AppleMeasurementUnits</key>
+  <string>Centimeters</string>
+  <key>AppleMetricUnits</key>
+  <true/>
+  <key>Country</key>
+  <string>AU</string>
+</dict>
+</plist>
+EOF
+
+# Default Keyboard Input (LoginWindow)
+cp "/var/tmp/com.apple.HIToolbox.loginwindow.plist"{,."$time_string"}
+cat > '/var/tmp/com.apple.HIToolbox.loginwindow.plist' << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>AppleCurrentKeyboardLayoutInputSourceID</key>
+  <string>com.apple.keylayout.Australian</string>
+  <key>com.apple.HIToolbox</key>
+  <dict>
+    <key>AppleDefaultAsciiInputSource</key>
+    <array>
+      <string>Australian</string>
+      <integer>15</integer>
+      <string>Keyboard Layout</string>
+    </array>
+    <key>AppleEnabledInputSources</key>
+    <array>
+      <dict>
+        <key>InputSourceKind</key>
+        <string>Keyboard Layout</string>
+        <key>KeyboardLayout ID</key>
+        <integer>15</integer>
+        <key>KeyboardLayout Name</key>
+        <string>Australian</string>
+      </dict>
+    </array>
+    <key>AppleSelectedInputSources</key>
+    <array>
+      <dict>
+        <key>InputSourceKind</key>
+        <string>Keyboard Layout</string>
+        <key>KeyboardLayout ID</key>
+        <integer>15</integer>
+        <key>KeyboardLayout Name</key>
+        <string>Australian</string>
+      </dict>
+    </array>
+  </dict>
+</dict>
+</plist>
+EOF
+chown securityagent:wheel '/var/tmp/com.apple.HIToolbox.loginwindow.plist'
+chmod 644 '/var/tmp/com.apple.HIToolbox.loginwindow.plist'
+
+# Default Keyboard Input (System)
+cp "/Library/Preferences/com.apple.HIToolbox.plist"{,."$time_string"}
+cat > '/Library/Preferences/com.apple.HIToolbox.plist' << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>AppleCurrentKeyboardLayoutInputSourceID</key>
+  <string>com.apple.keylayout.Australian</string>
+  <key>AppleDefaultAsciiInputSource</key>
+  <dict>
+    <key>InputSourceKind</key>
+    <string>Keyboard Layout</string>
+    <key>KeyboardLayout ID</key>
+    <integer>15</integer>
+    <key>KeyboardLayout Name</key>
+    <string>Australian</string>
+  </dict>
+  <key>AppleEnabledInputSources</key>
+  <array>
+    <dict>
+      <key>InputSourceKind</key>
+      <string>Keyboard Layout</string>
+      <key>KeyboardLayout ID</key>
+      <integer>15</integer>
+      <key>KeyboardLayout Name</key>
+      <string>Australian</string>
+    </dict>
+  </array>
+</dict>
+</plist>
+EOF
+
+# Setup & Registration
+touch "/private/var/db/.AppleSetupDone"
+touch "/Library/Receipts/.SetupRegComplete"
+
+# Library repair
+for user_path in /Users/*
+do
+  path_owner=$(basename "${user_path}")
+  if [ ! "${path_owner}" = "Shared" ]; then
+    if [ -d "${user_path}"/Library/Preferences ]; then
+      rm -f "${user_path}"/Library/Keychains/.fl*
+    fi
+  fi
+done
+
+# Self destruct
+rm -f /etc/rc.installer_cleanup
+
+exit 0
