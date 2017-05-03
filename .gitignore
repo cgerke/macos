@@ -26,5 +26,8 @@
 /root/private/var/root/*
 !/root/private/var/root/bootstrap.sh
 !/root/private/var/root/macos.sh
+!/root/usr
+!/root/usr/local
+!/root/usr/local/bin/*
 !/scripts
 !/tests

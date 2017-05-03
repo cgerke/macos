@@ -45,5 +45,9 @@ chmod 644 "${root_path}/Library/LaunchDaemons/com.cgerke.macos.plist"
 chown root:wheel "${root_path}/Library/LaunchDaemons/com.cgerke.macos.plist"
 chmod 755 "${root_path}/private/var/root/bootstrap.sh"
 chmod 755 "${root_path}/private/var/root/macos.sh"
+chown root:wheel "${root_path}/usr/local/bin/cocoadialog"
+chmod 755 "${root_path}/usr/local/bin/cocoadialog"
+chown root:wheel "${root_path}/usr/local/bin/yo"
+chmod 755 "${root_path}/usr/local/bin/yo"
 
 exit 0

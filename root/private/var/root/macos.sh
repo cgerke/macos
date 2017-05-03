@@ -27,13 +27,13 @@ mkfifo $named_pipe
 
 /Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog \
   progressbar --title 'macOS' --text "Setup..." \
-  --percent 0 --stoppable  < $named_pipe &
+  --percent 25 --stoppable  < $named_pipe &
 
 # associate file descriptor 3 with a named pipe and
 # do all of your work inside here
 exec 3<> $named_pipe
 
-echo "xcode installing CommandLineTools..." >&3
+echo "50 installing CommandLineTools..." >&3
 if ! xcode-select -p | grep '/Library/Developer/CommandLineTools'
 then
   _ondemand='/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
@@ -47,7 +47,7 @@ then
 fi
 
 # Time syncronisation - directory/domain services, chef, ssl etc
-echo "time configuring NTP..." >&3
+echo "75 configuring NTP..." >&3
 systemsetup -setusingnetworktime "on"
 systemsetup -setnetworktimeserver "time.asia.apple.com"
 ntpdate -vu time.asia.apple.com
@@ -59,17 +59,17 @@ ntpdate -vu time.asia.apple.com
 # importing a wifi configuration profile to avoid failures if you
 # are running this early (I'm waiting for GUI and cocoa so...)
 # sleep 10;
-echo "hardware installing profiles..." >&3
+echo "80 installing profiles..." >&3
 networksetup -detectnewhardware
 
-echo "profiles Profiles" >&3
+echo "85 Profiles" >&3
 for mobile_config in ~/*.mobileconfig
 do
-  echo "profiles ${mobile_config}" >&3
+  echo "90 ${mobile_config}" >&3
   sudo profiles -I -F "${mobile_config}" -f -v
 done
 
-echo "ard configuring Remote Management..." >&3
+echo "95 configuring Remote Management..." >&3
 /System/Library/CoreServices/RemoteManagement/ARDAgent.app\
 /Contents/Resources/kickstart \
   -activate -configure \
@@ -77,10 +77,10 @@ echo "ard configuring Remote Management..." >&3
   -clientopts -setvnclegacy -vnclegacy yes \
   -restart -agent
 
-echo "ssh configuring Remote Login..." >&3
+echo "96 configuring Remote Login..." >&3
 systemsetup -setremotelogin on
 
-echo "postfix configuring Postfix..." >&3
+echo "97 configuring Postfix..." >&3
 cp "/etc/postfix/main.cf"{,.orig}
 sed '/MANAGED_MAC_START/,/MANAGED_MAC_END/d' /etc/postfix/main.cf > /tmp/main.cf
 tee -a /tmp/main.cf <<<"# MANAGED_MAC_START
@@ -97,14 +97,14 @@ cat /tmp/main.cf
 cp -f /tmp/main.cf /etc/postfix/main.cf
 
 # gitignored
-echo "sasl configuring SASL..." >&3
+echo "98 configuring SASL..." >&3
 chmod 600 "/etc/postfix/sasl_passwd"
 chown root:wheel "/etc/postfix/sasl_passwd"
 postmap /etc/postfix/sasl_passwd
 postfix start
 
 # gitignored
-echo "ssh configuring SSHRC..." >&3
+echo "99 configuring SSHRC..." >&3
 chmod 600 /etc/ssh/sshrc
 chown root:wheel /etc/ssh/sshrc
 
