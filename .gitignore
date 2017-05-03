@@ -28,6 +28,7 @@
 !/root/private/var/root/macos.sh
 !/root/usr
 !/root/usr/local
-!/root/usr/local/bin/*
+!/root/usr/local/bin/cocoadialog
+!/root/usr/local/bin/yo
 !/scripts
 !/tests
