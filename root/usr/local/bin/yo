@@ -1,0 +1,4 @@
+#!/bin/bash
+if [[ $(who | grep -q console) ]]; then
+	/Applications/Utilities/yo.app/Contents/MacOS/yo "$@"
+fi

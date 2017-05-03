@@ -25,8 +25,7 @@ sleep 8 # give the gui some time...
 named_pipe=/tmp/hpipe
 mkfifo $named_pipe
 
-/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog \
-  progressbar --title 'macOS' --text "Setup..." \
+/usr/local/bin/cocoadialog progressbar --title 'macOS' --text "Setup..." \
   --percent 25 --stoppable  < $named_pipe &
 
 # associate file descriptor 3 with a named pipe and
